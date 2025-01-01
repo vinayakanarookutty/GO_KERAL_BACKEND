@@ -15,7 +15,7 @@ export class BookingService {
     }
 
     //retrieve data from database
-    async getBookings(){
+    async getBookings() : Promise<Booking[]>{
         return this.bookingModel.find().exec();
     }
 }
