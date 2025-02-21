@@ -16,4 +16,8 @@ export class DriverService {
         return this.driverModel.findOne({email}).exec()
     }
 
+    async findAll() : Promise<Driver[]>  {
+        return this.driverModel.find({}).exec()
+    }
+
 }
