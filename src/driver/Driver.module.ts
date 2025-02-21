@@ -2,6 +2,7 @@ import { Module } from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Driver, driverSchema } from "src/schemas/Driver.schema";
 import { DriverService } from "./Driver.service";
+import { DriverController } from "./Driver.controller";
 
 @Module({
     imports : [
@@ -11,7 +12,7 @@ import { DriverService } from "./Driver.service";
         }])
     ] ,
     providers : [DriverService] ,
-    controllers : [] ,
+    controllers : [DriverController] ,
 })
 
 export class DriverModule {}
