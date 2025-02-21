@@ -1,7 +1,6 @@
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 @Schema()
-
 export class Driver {
 
     @Prop()
@@ -20,7 +19,7 @@ export class Driver {
     agreement : boolean;
 
     @Prop()
-    drivingLicenseNo : string;
+    drivinglicenseNo : string;
 
 }
 

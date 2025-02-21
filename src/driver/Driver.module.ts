@@ -11,6 +11,7 @@ import { DriverService } from "./Driver.service";
         }])
     ] ,
     providers : [DriverService] ,
+    controllers : [] ,
 })
 
 export class DriverModule {}
