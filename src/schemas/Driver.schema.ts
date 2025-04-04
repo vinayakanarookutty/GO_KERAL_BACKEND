@@ -1,12 +1,18 @@
+/* eslint-disable prettier/prettier */
 import { Prop, Schema, SchemaFactory } from "@nestjs/mongoose";
 
 @Schema()
 export class Driver {
 
+   
+
     @Prop()
     name : string;
 
     @Prop()
+    imageUrl : string;
+
+    @Prop({unique: true})
     email : string;
 
     @Prop()
@@ -20,6 +26,9 @@ export class Driver {
 
     @Prop()
     drivinglicenseNo : string;
+
+    @Prop({ type: Object, default: {} })
+    personalInfo: Record<string, any>;
 
 }
 

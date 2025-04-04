@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Controller, Post , Get , Body , HttpException , HttpStatus, Query } from "@nestjs/common";
 import * as bcrypt from 'bcrypt' ;
 import { AdminService } from './Admin.service'

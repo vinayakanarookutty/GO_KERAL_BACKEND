@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
@@ -20,4 +21,21 @@ export class DriverService {
         return this.driverModel.find({}).exec()
     }
 
+
+    async updateDriverPersonalInfo(userId: string, personalInfo: any) {
+        return this.driverModel.findOneAndUpdate(
+          { email:userId },
+          { $set: { personalInfo } },
+          { new: true },
+        );
+      }
+
+
+    async updateDriverImage(email: string, imageUrl: string): Promise<Driver | null> {
+        return this.driverModel.findOneAndUpdate(
+          { email }, // Find by email
+          { imageUrl }, // Update image URL
+          { new: true } // Return updated document
+        );
+      }
 }

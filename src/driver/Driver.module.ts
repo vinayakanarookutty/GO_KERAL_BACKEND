@@ -1,8 +1,10 @@
-import { Module } from "@nestjs/common";
+/* eslint-disable prettier/prettier */
+import { Module ,MiddlewareConsumer} from "@nestjs/common";
 import { MongooseModule } from "@nestjs/mongoose";
 import { Driver, driverSchema } from "src/schemas/Driver.schema";
 import { DriverService } from "./Driver.service";
 import { DriverController } from "./Driver.controller";
+import { AuthMiddleware } from "src/middlleware/auth.middlllleware";
 
 @Module({
     imports : [
@@ -15,4 +17,8 @@ import { DriverController } from "./Driver.controller";
     controllers : [DriverController] ,
 })
 
-export class DriverModule {}
+export class DriverModule {
+    configure(consumer: MiddlewareConsumer) {
+        consumer.apply(AuthMiddleware).forRoutes("/userDetails","/updateDriver","/updateDriverPersonalInfo"); // Protect userDetails route
+      }
+}
