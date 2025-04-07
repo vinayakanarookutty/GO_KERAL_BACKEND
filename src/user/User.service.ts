@@ -1,27 +1,30 @@
-import { Injectable } from "@nestjs/common";
-import { InjectModel } from "@nestjs/mongoose";
-import { Model } from "mongoose";
-import { User } from "src/schemas/User.schema";
+import { Injectable } from '@nestjs/common';
+import { InjectModel } from '@nestjs/mongoose';
+import { Model } from 'mongoose';
+import { User } from 'src/schemas/User.schema';
 
 @Injectable()
 export class UserService {
-    constructor (@InjectModel(User.name) private userModel : Model<User> ){}
+  constructor(@InjectModel(User.name) private userModel: Model<User>) {}
 
-    async createUser (userData : User) : Promise<User>{
-        const newUser = new this.userModel(userData);
-        return newUser.save();
-    }
+  async createUser(userData: User): Promise<User> {
+    const newUser = new this.userModel(userData);
+    return newUser.save();
+  }
 
-    async findUserByEmail(userEmail : string) : Promise <User>{
-        return this.userModel.findOne({email : userEmail}).exec() ;
-        
-    }
+  async findById(id: any): Promise<User | null> {
+    return await this.userModel.findById(id);
+  }
 
-    async findUsers() : Promise<User[]>{
-        return await this.userModel.find().exec() ;
-    }
+  async findUserByEmail(userEmail: string): Promise<User> {
+    return await this.userModel.findOne({ email: userEmail }).exec();
+  }
 
-    async findUserByName(userName : string) : Promise<User>{
-        return await this.userModel.findOne({name : userName})
-    }
-} 
+  async findUsers(): Promise<User[]> {
+    return await this.userModel.find().exec();
+  }
+
+  async findUserByName(userName: string): Promise<User> {
+    return await this.userModel.findOne({ name: userName });
+  }
+}
