@@ -3,9 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
 import { AllExceptionsFilter } from './http-exception.filter';
+import { NestExpressApplication } from '@nestjs/platform-express';
+import { join } from 'path';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   //CORS configuration
   app.enableCors({
@@ -24,6 +26,10 @@ async function bootstrap() {
     ],
     credentials: true,
     maxAge: 86400, //preflight results cache for 24 hours
+  });
+
+  app.useStaticAssets(join(__dirname, '..', 'uploads'), {
+    prefix: '/uploads/', // This prefix will be used in URLs
   });
 
   app.use(bodyParser.json({ limit: '50mb' }));
