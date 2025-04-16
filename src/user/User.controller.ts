@@ -118,7 +118,7 @@ export class UserController {
     try {
       const user = await this.userService.findUserByName(userIdFromQuery);
       return { user };
-    } catch (error) {
+    } catch (error:any) {
       throw new HttpException(
         'Error retreiving user from Query',
         HttpStatus.INTERNAL_SERVER_ERROR,

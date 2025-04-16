@@ -8,7 +8,6 @@ import {
   Req,
   HttpException,
   HttpStatus,
-  InternalServerErrorException,
 } from '@nestjs/common';
 import { DriverService } from './Driver.service';
 import * as bcrypt from 'bcrypt';
