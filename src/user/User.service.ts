@@ -1,3 +1,4 @@
+/* eslint-disable prettier/prettier */
 import { Injectable } from '@nestjs/common';
 import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
@@ -16,12 +17,24 @@ export class UserService {
     return await this.userModel.findById(id);
   }
 
-  async findUserByEmail(userEmail: string): Promise<User> {
+  async findUserByEmail(userEmail: string, type?: string): Promise<User> {
+    if (type) {
+      return await this.userModel
+        .findOne({ email: userEmail }, { password: 0 })
+        .exec();
+    }
     return await this.userModel.findOne({ email: userEmail }).exec();
   }
 
   async findUsers(): Promise<User[]> {
     return await this.userModel.find().exec();
+  }
+
+  async findByEmailAndUpdate(email: string, data: User) {
+  
+    return await this.userModel.findOneAndUpdate({ email }, data, {
+      new: true,
+    });
   }
 
   async findUserByName(userName: string): Promise<User> {

@@ -1,3 +1,4 @@
+
 import {
   Body,
   Controller,
@@ -5,12 +6,18 @@ import {
   HttpException,
   HttpStatus,
   Post,
+  Put,
   Query,
+  UploadedFile,
+  UseInterceptors,
 } from '@nestjs/common';
 import * as bcrypt from 'bcrypt';
 import { UserService } from './User.service';
 import { User } from 'src/schemas/User.schema';
 import * as jwt from 'jsonwebtoken';
+import { FileInterceptor } from '@nestjs/platform-express';
+import { diskStorage } from 'multer';
+import { Express } from 'express';
 
 @Controller()
 export class UserController {
@@ -103,7 +110,8 @@ export class UserController {
   @Get('userDetails')
   async getUser(@Query('id') email: string) {
     try {
-      const userData = await this.userService.findUserByEmail(email);
+      const userData = await this.userService.findUserByEmail(email, 'details');
+      delete userData.password;
       return { userData };
     } catch (error) {
       throw new HttpException(
@@ -113,14 +121,61 @@ export class UserController {
     }
   }
 
-  @Get('userProfile')
-  async getUserFromQuery(@Query('user') userIdFromQuery: string) {
+  @Put('userDetails')
+  @UseInterceptors(
+    FileInterceptor('profileImage', {
+      storage: diskStorage({
+        destination: './uploads/profiles',
+        filename: (req, file, cb) => {
+          const uniqueSuffix =
+            Date.now() + '-' + Math.round(Math.random() * 1e9);
+          cb(null, `${uniqueSuffix}-${file.originalname}`);
+        },
+      }),
+      fileFilter: (req, file, cb) => {
+        if (!file.originalname.match(/\.(jpg|jpeg|png|gif)$/)) {
+          return cb(new Error('Only image files are allowed!'), false);
+        }
+        cb(null, true);
+      },
+      limits: {
+        fileSize: 1024 * 1024 * 5, // 5MB
+      },
+    }),
+  )
+  async updateUserProfile(
+    @Query('id') email: string,
+    @Body() userData: User,
+    @UploadedFile() profileImage?: Express.Multer.File,
+  ) {
     try {
-      const user = await this.userService.findUserByName(userIdFromQuery);
-      return { user };
-    } catch (error:any) {
+      console.log('userData', userData);
+      console.log('profileImage', profileImage);
+
+      // Create the user update data
+      const updateData = { ...userData };
+
+      // If there's a profile image, store its path in the database
+      if (profileImage) {
+        // Save just the relative path to the image in the database
+        updateData.profileImage = `/uploads/profiles/${profileImage.filename}`;
+        // Or if you need the absolute path:
+        // updateData.profileImage = path.join(process.cwd(), 'uploads/profiles', profileImage.filename);
+      }
+
+      const updatedUser = await this.userService.findByEmailAndUpdate(
+        email,
+        updateData,
+      );
+
+      return {
+        message: 'User updated successfully',
+        data: updatedUser,
+      };
+    } catch (error) {
+      console.error('Error updating user:', error);
       throw new HttpException(
-        'Error retreiving user from Query',
+        'Error updating user profile',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }

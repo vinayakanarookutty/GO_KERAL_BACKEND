@@ -31,7 +31,7 @@ export class DriverController {
       agreement: boolean;
     },
   ) {
-    console.log('Haiiiiiii');
+    
     try {
       const hashedPassword = await bcrypt.hash(body.password, 10);
       const newDriver: Driver = {
@@ -93,7 +93,7 @@ export class DriverController {
   async getUserDetails(@Req() req: Request) {
     try {
       const userId = await req['user'].id; // ✅ Fixed syntax
-
+   
       const user = await this.driverService.findDriverByEmail(userId);
 
       if (!user) {
@@ -164,7 +164,7 @@ export class DriverController {
           HttpStatus.BAD_REQUEST,
         );
       }
-      console.log(userId);
+   
       const updatedDriver = await this.driverService.updateDriverPersonalInfo(
         userId,
         body,
