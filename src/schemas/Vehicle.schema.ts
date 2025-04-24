@@ -1,36 +1,51 @@
-/* eslint-disable prettier/prettier */
-import {Schema , Prop , SchemaFactory} from '@nestjs/mongoose'
+import { Prop, Schema, SchemaFactory } from '@nestjs/mongoose';
+import { Document } from 'mongoose';
 
 @Schema()
-export class Vehicle {
+export class Vehicle extends Document {
+  @Prop()
+  make: string;
 
-    @Prop()
-    make : string;
-    
-    @Prop()
-    model : string;
-    
-    @Prop()
-    year : number;
+  @Prop()
+  driverId: string;
 
-    @Prop()
-    licensePlate : string;
+  @Prop()
+  vehicleModel: string;
 
-    @Prop()
-    type: string;
+  @Prop()
+  year: number;
 
-    @Prop()
-    Driving_Licence: string; // File path
-    
-    @Prop()
-    Vehicle_Insurance_Proof: string; // File path
-    
-    @Prop()
-    Proof_Of_Address: string; // File path
-    
-    @Prop()
-    Police_Clearance_Certificate: string; // File path
+  @Prop()
+  seatsNo: number;
 
+  @Prop()
+  licensePlate: string;
+
+  @Prop()
+  vehicleClass: string;
+
+  @Prop()
+  vehicleType: string;
+
+  @Prop([String])
+  vehicleImages: string[];
+
+  @Prop({ type: Object })
+  documents: {
+    Driving_Licence?: string;
+    Police_Clearance_Certificate?: string;
+    Proof_Of_Address?: string;
+    Vehicle_Insurance_Proof?: string;
+  };
+
+  @Prop({ type: Object })
+  fareStructure: {
+    baseFare: number;
+    minimumFare: number;
+    perKilometerRate: number;
+    waitingChargePerMinute: number;
+    cancellationFee: number;
+  };
 }
 
-export const vehicleSchema = SchemaFactory.createForClass(Vehicle);
+export const VehicleSchema = SchemaFactory.createForClass(Vehicle);

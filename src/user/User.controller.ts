@@ -96,7 +96,7 @@ export class UserController {
   @Get('userList')
   async getAllUser() {
     try {
-      var userData = await this.userService.findUsers();
+      const userData = await this.userService.findUsers();
       return { userData };
     } catch (error) {
       console.log('Error retreiving users : ', error);
@@ -113,7 +113,7 @@ export class UserController {
       const userData = await this.userService.findUserByEmail(email, 'details');
       delete userData.password;
       return { userData };
-    } catch (error) {
+    } catch (error:any) {
       throw new HttpException(
         'Error getting user data',
         HttpStatus.INTERNAL_SERVER_ERROR,

@@ -9,6 +9,7 @@ import { PinModule } from './pin/Pin.module';
 import { QuotationModule } from './quotation/Quotation.module';
 import { UserModule } from './user/User.module';
 import { VehicleModule } from './vehicle/Vehicle.module';
+import { S3Module } from './s3/s3.module';
 
 @Module({
   imports: [ 
@@ -21,6 +22,7 @@ import { VehicleModule } from './vehicle/Vehicle.module';
     QuotationModule ,
     UserModule ,
     VehicleModule ,
+    S3Module
   ],
   controllers: [],
   providers: [],
