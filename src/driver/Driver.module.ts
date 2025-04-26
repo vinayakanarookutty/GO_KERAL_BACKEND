@@ -26,6 +26,7 @@ export class DriverModule {
         '/driverDetails',
         '/updateDriver',
         '/updateDriverPersonalInfo',
+        '/driverList'
       ); // Protect userDetails route
   }
 }

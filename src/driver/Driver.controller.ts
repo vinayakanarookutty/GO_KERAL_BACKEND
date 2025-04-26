@@ -80,8 +80,8 @@ export class DriverController {
   @Get('driverList')
   async getAll() {
     try {
-      const users = this.driverService.findAll();
-      return { users };
+      const drivers = await this.driverService.findAll();
+      return { drivers };
     } catch (error) {
       console.log('Login error', error);
       throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);

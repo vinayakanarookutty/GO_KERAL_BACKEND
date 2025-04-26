@@ -19,8 +19,30 @@ export class VehicleController {
     return this.vehicleService.findAll();
   }
 
-  @Get(':id')
-  findById(@Param('id') id: string) {
-    return this.vehicleService.findById(id);
+  // @Get(':id')
+  // findById(@Param('id') id: string) {
+  //   return this.vehicleService.findById(id);
+  // }
+
+
+  @UseGuards(AuthMiddleware)
+  @Get('by-email')
+  async findByEmail(@Req() req: Request) {
+   
+    const email = await req['user'].id;
+    return this.vehicleService.findByDriverEmail(email); // custom service method
   }
+
+
+
+
+  @UseGuards(AuthMiddleware)
+@Post(':id')
+async updateVehicle(
+  @Param('id') id: string,
+  @Body() updateVehicleDto:CreateVehicleDto, // ideally replace 'any' with a DTO
+) {
+  return this.vehicleService.update(id, updateVehicleDto);
+}
+
 }

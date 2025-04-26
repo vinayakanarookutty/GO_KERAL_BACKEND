@@ -18,8 +18,23 @@ export class VehicleService {
   async findAll() {
     return this.vehicleModel.find().exec();
   }
-
-  async findById(id: string) {
-    return this.vehicleModel.findById(id).exec();
+  async findByDriverEmail(email: string) {
+    return this.vehicleModel.find({ driverId: email });
   }
+  // eslint-disable-next-line prettier/prettier
+  
+
+  async update(id: string, updateVehicleDto: any): Promise<any> {
+    return this.vehicleModel.findByIdAndUpdate(id, updateVehicleDto, {
+      new: true,
+      runValidators: true,
+    });
+  }
+  // eslint-disable-next-line prettier/prettier
+  
+  // eslint-disable-next-line prettier/prettier
+  
+  // async findById(id: string) {
+  //   return this.vehicleModel.findById(id).exec();
+  // }
 }

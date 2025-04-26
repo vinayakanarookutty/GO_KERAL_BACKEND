@@ -9,7 +9,7 @@ import {
   
   export class CreateVehicleDto {
     @IsString() make: string;
-    @IsString() model: string;
+    @IsString() vehicleModel: string;
     @IsNumber() year: number;
     @IsNumber() seatsNo: number;
     @IsString() licensePlate: string;
