@@ -1,18 +1,26 @@
-import { Module } from "@nestjs/common";
-import { MongooseModule } from "@nestjs/mongoose";
-import { Booking, BookingSchema } from "src/schemas/Booking.schema";
-import { BookingService } from "./Booking.service";
-import { BookingController } from "./Booking.controller";
+/* eslint-disable prettier/prettier */
+import { MiddlewareConsumer, Module } from '@nestjs/common';
+import { MongooseModule } from '@nestjs/mongoose';
+import { BookingController } from './booking.controller';
+import { BookingService } from './booking.service';
+import { Booking, BookingSchema } from '../schemas/Booking.schema';
+import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
+
 
 @Module({
-    imports : [ 
-        MongooseModule.forFeature([{
-            name : Booking.name ,
-            schema : BookingSchema ,
-        }])
-    ] ,
-    controllers : [BookingController] ,
-    providers : [ BookingService ] ,
+  imports: [
+    MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }])
+  ],
+  controllers: [BookingController],
+  providers: [BookingService],
+  exports: [BookingService],
 })
-
-export class BookingModule {}
+export class BookingModule {
+     configure(consumer: MiddlewareConsumer) {
+        consumer
+          .apply(AuthMiddleware)
+          .forRoutes(
+            '/bookings',
+          ); 
+      }
+}
