@@ -38,8 +38,8 @@ export class BookingService {
     return this.bookingModel.find({ 'driver.id': driverId }).sort({ createdAt: -1 }).exec();
   }
 
-  async findActiveDriverBooking(driverId: string): Promise<Booking | null> {
-    return this.bookingModel.findOne({
+  async findActiveDriverBooking(driverId: string){
+    return this.bookingModel.find({
       'driver.id': driverId,
       status: { $in: ['accepted', 'in-progress','pending'] }
     }).exec();

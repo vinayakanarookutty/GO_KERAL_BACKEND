@@ -21,6 +21,7 @@ export class BookingModule {
           .apply(AuthMiddleware)
           .forRoutes(
             '/bookings',
+            '/bookingDetails'
           ); 
       }
 }
