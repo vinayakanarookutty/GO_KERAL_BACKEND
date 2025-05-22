@@ -55,6 +55,27 @@ import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
           throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
         }
       }
+
+       @Get('bookingDetailsForUsers')
+      @UseGuards(AuthMiddleware)
+      async getBookingDetailsForUsers(@Req() req: Request) {
+        try {
+          const userId = await req['user'].id; // ✅ Fixed syntax
+       
+          const booking = await this.bookingService.findActiveUserBooking(userId);
+    
+          if (!booking) {
+            throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+          }
+    
+          return {
+          booking
+          };
+        } catch (error) {
+          console.error('Error fetching user details:', error);
+          throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+      }
   
     // @Get()
     // @UseGuards(JwtAuthGuard)

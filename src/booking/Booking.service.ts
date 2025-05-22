@@ -44,6 +44,11 @@ export class BookingService {
       status: { $in: ['accepted', 'in-progress','pending'] }
     }).exec();
   }
+  async findActiveUserBooking(userId: string){
+    return this.bookingModel.find({
+      userId: userId,
+    }).exec();
+  }
 
   async findOne(id: string): Promise<Booking> {
     const booking = await this.bookingModel.findById(id).exec();
