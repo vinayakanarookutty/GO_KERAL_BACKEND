@@ -2,6 +2,7 @@
 import { Injectable } from "@nestjs/common";
 import { InjectModel } from "@nestjs/mongoose";
 import { Model } from "mongoose";
+import { DriverDto } from "src/dto/driver.dto";
 import { Driver } from "src/schemas/Driver.schema";
 
 @Injectable()
@@ -12,10 +13,12 @@ export class DriverService {
         const newDriver = new this.driverModel(driverData);
         return newDriver.save()
     }
+async findDriverByEmail(email: string): Promise<Driver | null> {
+  return this.driverModel
+    .findOne({ email: email.trim().toLowerCase() })
+    .exec();
+}
 
-    async findDriverByEmail(email : string) : Promise<Driver | null> {
-        return this.driverModel.findOne({email}).exec()
-    }
 
     async findAll() : Promise<Driver[]>  {
         return this.driverModel.find({}).exec()
@@ -31,11 +34,13 @@ export class DriverService {
       }
 
 
-    async updateDriverImage(email: string, imageUrl: string): Promise<Driver | null> {
-        return this.driverModel.findOneAndUpdate(
-          { email }, // Find by email
-          { imageUrl }, // Update image URL
-          { new: true } // Return updated document
-        );
-      }
+async updateDriverDetails(userEmail: string, updateData: Partial<DriverDto>) {
+  return await this.driverModel.findOneAndUpdate(
+    { email: userEmail },          
+    { $set: updateData },
+    { new: true },
+  );
+}
+
+
 }

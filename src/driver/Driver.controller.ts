@@ -114,37 +114,42 @@ export class DriverController {
     }
   }
 
-  @Post('updateDriver')
-  @UseGuards(AuthMiddleware)
-  async updateDriver(@Body() body: { imageUrl: string }, @Req() req: Request) {
-    try {
-      const { imageUrl } = body;
-      if (!imageUrl) {
-        throw new HttpException(
-          'Missing required fields',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
+ @Post('updateDriver')
+@UseGuards(AuthMiddleware)
+async updateDriver(
+  @Body() body: {
+    name?: string;
+    email?: string;
+    phone?: number;
+    drivinglicenseNo?: string;
+    imageUrl?: string;
+  },
+  @Req() req: Request,
+) {
+  try {
+    const userId = req['user'].id;
+  
+   
 
-      const userId = req['user'].id; // ✅ Fixed syntax
+    const updatedDriver = await this.driverService.updateDriverDetails(
+      userId,
+      body, // pass full body with updated fields
+    );
 
-      const updatedDriver = await this.driverService.updateDriverImage(
-        userId,
-        imageUrl,
-      );
-      if (!updatedDriver) {
-        throw new HttpException('Driver not found', HttpStatus.NOT_FOUND);
-      }
-
-      return {
-        message: 'Profile picture updated successfully',
-        driver: updatedDriver,
-      };
-    } catch (error) {
-      console.error('Error updating driver:', error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+    if (!updatedDriver) {
+      throw new HttpException('Driver not found', HttpStatus.NOT_FOUND);
     }
+
+    return {
+      message: 'Driver details updated successfully',
+      driver: updatedDriver,
+    };
+  } catch (error) {
+    console.error('Error updating driver:', error);
+    throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
   }
+}
+
 
   @Post('updateDriverPersonalInfo')
   @UseGuards(AuthMiddleware)
