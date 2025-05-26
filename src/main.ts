@@ -13,7 +13,7 @@ async function bootstrap() {
     origin: [
       'http://localhost:5173',
       'http://localhost:5174',
-      'https://d1w5k4nn5lbs5k.cloudfront.net',
+      'https://dtc7ksfmzr3e8.cloudfront.net',
     ],
     methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowedHeaders: [

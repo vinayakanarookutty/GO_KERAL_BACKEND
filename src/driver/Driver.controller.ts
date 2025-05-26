@@ -19,6 +19,12 @@ import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 export class DriverController {
   constructor(private readonly driverService: DriverService) {}
 
+// test
+@Get('ping')
+  ping() {
+    return { message: 'DriverController is working!' };
+  }
+  
   @Post('driversignup')
   async driverSignup(
     @Body()
