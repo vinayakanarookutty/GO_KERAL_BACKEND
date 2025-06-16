@@ -44,7 +44,6 @@ export class Vehicle extends Document {
     minimumFare: number;
     perKilometerRate: number;
     waitingChargePerMinute: number;
-    cancellationFee: number;
   };
 }
 
