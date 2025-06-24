@@ -8,6 +8,9 @@ import {
     // Delete, 
     // Put, 
     UseGuards, 
+    Patch,
+    Put,
+    Param,
     Req,
     HttpStatus,
     HttpException,
@@ -15,7 +18,7 @@ import {
     // Query
   } from '@nestjs/common';
   import { BookingService } from './booking.service';
-  import { CreateBookingDto} from '../dto/booking.dto';
+  import { CreateBookingDto, UpdateBookingStatusDto} from '../dto/booking.dto';
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 //   import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 //   import { Roles } from '../auth/decorators/roles.decorator';
@@ -35,11 +38,54 @@ import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
     }
 
 
+//     @Patch(':id')
+// @UseGuards(AuthMiddleware)
+// async updateBookingStatus(
+//   @Param('id') bookingId: string,
+//   @Body() updateBookingStatusDto:UpdateBookingStatusDto,
+//   // @Req() req
+// ) {
+//   try {
+//     // const userId = req['user']?.id;
+//     console.log("hrllllllo")
+//     return await this.bookingService.updateBookingStatus(bookingId, updateBookingStatusDto.status);
+//   } catch (error) {
+//     console.error('Error updating booking status:', error);
+//     throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+//   }
+// }
+
+
+
+ @Put(':id/status')
+    @UseGuards(AuthMiddleware)
+    async updateBookingStatus(
+      @Param('id') bookingId: string,
+      @Body() updateBookingStatusDto: UpdateBookingStatusDto,
+      @Req() req
+    ) {
+      try {
+        const userId = req['user']?.id;
+        console.log("=== UPDATE BOOKING STATUS ===");
+        console.log("Booking ID:", bookingId);
+        console.log("Status:", updateBookingStatusDto.status);
+        console.log("User ID:", userId);
+        
+        return await this.bookingService.updateBookingStatus(bookingId, updateBookingStatusDto.status);
+      } catch (error) {
+        console.error('Error updating booking status:', error);
+        throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      }
+    }
+
+
      @Get('bookingDetails')
       @UseGuards(AuthMiddleware)
       async getBookingDetails(@Req() req: Request) {
         try {
           const userId = await req['user'].id; // ✅ Fixed syntax
+          console.log(userId)
+       
        
           const booking = await this.bookingService.findActiveDriverBooking(userId);
     

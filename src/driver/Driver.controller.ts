@@ -87,6 +87,7 @@ export class DriverController {
   async getAll() {
     try {
       const drivers = await this.driverService.findAll();
+      console.log(drivers)
       return { drivers };
     } catch (error) {
       console.log('Login error', error);

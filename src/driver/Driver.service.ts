@@ -21,7 +21,7 @@ async findDriverByEmail(email: string): Promise<Driver | null> {
 
 
     async findAll() : Promise<Driver[]>  {
-        return this.driverModel.find({}).exec()
+        return this.driverModel.find({},'-password').exec()
     }
 
 

@@ -147,6 +147,25 @@ class Passenger {
   };
 }
 
+@Schema({ _id: false })
+class Info {
+  @Prop({ required: true })
+  date: string;
+
+  @Prop({ required: true })
+  time: string;
+
+  
+  @Prop({ required: true })
+  name: string;
+
+  @Prop({ required: true })
+  scheduledDateTime: string;
+
+  @Prop({ required: true })
+  phone: string;
+}
+
 @Schema({ timestamps: true })
 export class Booking extends Document {
   @Prop({ type: String, unique: true, default: () => {
@@ -207,6 +226,9 @@ export class Booking extends Document {
 
   @Prop()
   userId: string;
+
+  @Prop({type:Object})
+  userInfo: Info;
 }
 
 export const BookingSchema = SchemaFactory.createForClass(Booking);

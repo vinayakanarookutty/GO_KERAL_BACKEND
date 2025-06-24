@@ -29,6 +29,19 @@ export class BookingService {
     }
   }
 
+  async updateBookingStatus(bookingId: string, status: string, ) {
+  const booking = await this.bookingModel.findById(bookingId);
+
+  if (!booking) {
+   throw new NotFoundException(`Booking with ID ${bookingId} not found`);
+  }
+
+ 
+  booking.status = status;
+  return await booking.save();
+}
+
+
   async findAll(userId?: string): Promise<Booking[]> {
     const query = userId ? { userId } : {};
     return this.bookingModel.find(query).sort({ createdAt: -1 }).exec();

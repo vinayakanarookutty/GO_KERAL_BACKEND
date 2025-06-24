@@ -292,3 +292,4 @@ export class BookingResponseDto {
   createdAt: Date;
   updatedAt: Date;
 }
+
