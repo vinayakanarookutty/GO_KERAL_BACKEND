@@ -12,6 +12,7 @@ async function bootstrap() {
   app.enableCors({
     origin: [
       'https://kerides.com',
+      'https://kerides.com/',
       'http://localhost:5173',
       'http://localhost:5174',
       'https://dtc7ksfmzr3e8.cloudfront.net',
