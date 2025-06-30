@@ -13,6 +13,7 @@ async function bootstrap() {
     origin: [
       'https://kerides.com',
       'https://kerides.com/',
+      'https://www.kerides.com/',
       'http://localhost:5173',
       'http://localhost:5174',
       'https://dtc7ksfmzr3e8.cloudfront.net',
