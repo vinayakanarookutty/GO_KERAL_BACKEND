@@ -40,7 +40,6 @@ export class Vehicle extends Document {
 
   @Prop({ type: Object })
   fareStructure: {
-    baseFare: number;
     minimumFare: number;
     perKilometerRate: number;
     waitingChargePerMinute: number;
