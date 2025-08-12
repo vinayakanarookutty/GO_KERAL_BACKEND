@@ -1,8 +1,8 @@
 /* eslint-disable prettier/prettier */
 import { MiddlewareConsumer, Module } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
-import { BookingController } from './booking.controller';
-import { BookingService } from './booking.service';
+import { BookingController } from './Booking.controller';
+import { BookingService } from './Booking.service';
 import { Booking, BookingSchema } from '../schemas/Booking.schema';
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 
