@@ -17,7 +17,7 @@ import {
     HttpCode,
     // Query
   } from '@nestjs/common';
-  import { BookingService } from './booking.service';
+  import { BookingService } from './Booking.service';
   import { CreateBookingDto, UpdateBookingStatusDto} from '../dto/booking.dto';
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 //   import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
