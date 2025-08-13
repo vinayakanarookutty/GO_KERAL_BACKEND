@@ -9,26 +9,34 @@ async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
 
   //CORS configuration
-  app.enableCors({
-    origin: [
-      'https://kerides.com',
-      'https://kerides.com/',
-      'https://www.kerides.com/',
-      'http://localhost:5173',
-      'http://localhost:5174',
-      'https://dtc7ksfmzr3e8.cloudfront.net',
-    ],
-    methods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
-    allowedHeaders: [
-      'Content-Type',
-      'Authorization',
-      'X-Requested-With',
-      'Accept',
-      'x-auth-token',
-    ],
-    credentials: true,
-    maxAge: 86400, //preflight results cache for 24 hours
-  });
+const allowedOrigins = [
+  'https://kerides.com',
+  'https://www.kerides.com',
+  'http://localhost:5173',
+  'http://localhost:5174',
+  'https://dtc7ksfmzr3e8.cloudfront.net',
+];
+
+app.enableCors({
+  origin: (origin, callback) => {
+    if (!origin || allowedOrigins.includes(origin)) {
+      callback(null, true);
+    } else {
+      callback(new Error('Not allowed by CORS'));
+    }
+  },
+  methods: ['GET', 'POST', 'PUT', 'PATCH', 'DELETE', 'OPTIONS'],
+  allowedHeaders: [
+    'Content-Type',
+    'Authorization',
+    'X-Requested-With',
+    'Accept',
+    'x-auth-token',
+  ],
+  credentials: true,
+  maxAge: 86400,
+});
+
 
   app.useStaticAssets(join(__dirname, '..', 'uploads'), {
     prefix: '/uploads/', // This prefix will be used in URLs
