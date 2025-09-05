@@ -19,22 +19,36 @@ import * as jwt from 'jsonwebtoken';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Express } from 'express';
+import { IsEmail, IsString, MinLength, IsBoolean, IsNumber, Min } from 'class-validator';
+import { Transform } from 'class-transformer';
+
+class SignupDto {
+  @IsString()
+  @MinLength(2)
+  name: string;
+
+  @IsEmail()
+  @Transform(({ value }) => value.toLowerCase().trim())
+  email: string;
+
+  @IsNumber()
+  @Min(1000000000)
+  phone: number;
+
+  @IsString()
+  @MinLength(6)
+  password: string;
+
+  @IsBoolean()
+  terms: boolean;
+}
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('signup')
-  async userSignup(
-    @Body()
-    body: {
-      name: string;
-      email: string;
-      phone: number;
-      password: string;
-      terms: boolean;
-    },
-  ) {
+  async userSignup(@Body() body: SignupDto) {
     try {
       const isUserExists = await this.userService.findUserByEmail(body.email);
 
@@ -51,11 +65,13 @@ export class UserController {
         terms: body.terms,
       };
 
-      await this.userService.createUser(user);
+      const createdUser = await this.userService.createUser(user);
+      const { password, ...userWithoutPassword } = createdUser.toObject();
+      
       return {
         status: 201,
         message: 'User Created Successfully',
-        user,
+        user: userWithoutPassword,
       };
     } catch (error) {
       console.log('Error creating user : ', error);
