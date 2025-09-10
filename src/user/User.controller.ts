@@ -71,11 +71,11 @@ export class UserController {
     try {
       const user = await this.userService.findUserByEmail(body.email);
       if (!user) {
-       return  new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
+       throw  new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
       }
       const checkPassword = await bcrypt.compare(body.password, user.password);
       if (!checkPassword) {
-        return new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
       }
 
       const token = jwt.sign({ id: user.email }, 'passwordKey');
