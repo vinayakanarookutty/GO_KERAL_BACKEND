@@ -19,36 +19,22 @@ import * as jwt from 'jsonwebtoken';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Express } from 'express';
-import { IsEmail, IsString, MinLength, IsBoolean, IsNumber, Min } from 'class-validator';
-import { Transform } from 'class-transformer';
-
-class SignupDto {
-  @IsString()
-  @MinLength(2)
-  name: string;
-
-  @IsEmail()
-  @Transform(({ value }) => value.toLowerCase().trim())
-  email: string;
-
-  @IsNumber()
-  @Min(1000000000)
-  phone: number;
-
-  @IsString()
-  @MinLength(6)
-  password: string;
-
-  @IsBoolean()
-  terms: boolean;
-}
 
 @Controller()
 export class UserController {
   constructor(private readonly userService: UserService) {}
 
   @Post('signup')
-  async userSignup(@Body() body: SignupDto) {
+  async userSignup(
+    @Body()
+    body: {
+      name: string;
+      email: string;
+      phone: number;
+      password: string;
+      terms: boolean;
+    },
+  ) {
     try {
       const isUserExists = await this.userService.findUserByEmail(body.email);
 
@@ -65,15 +51,16 @@ export class UserController {
         terms: body.terms,
       };
 
-      const createdUser = await this.userService.createUser(user);
-      const { password, ...userWithoutPassword } = createdUser.toObject();
-      
+      await this.userService.createUser(user);
       return {
         status: 201,
         message: 'User Created Successfully',
-        user: userWithoutPassword,
+        user,
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       console.log('Error creating user : ', error);
       throw new HttpException(
         'Error creating user',
@@ -87,21 +74,23 @@ export class UserController {
     try {
       const user = await this.userService.findUserByEmail(body.email);
       if (!user) {
-       return  new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
+        throw new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
       }
       const checkPassword = await bcrypt.compare(body.password, user.password);
       if (!checkPassword) {
-        return new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
       }
 
       const token = jwt.sign({ id: user.email }, 'passwordKey');
       return {
-        message: 'Login Succesfull',
-        HttpStatus: 200,
+        message: 'Login Successful',
         user: user,
         token,
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       console.log('Login error : ', error);
       throw new HttpException(
         'User Login failed',
