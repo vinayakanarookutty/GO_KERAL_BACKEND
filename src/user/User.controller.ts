@@ -58,6 +58,9 @@ export class UserController {
         user,
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       console.log('Error creating user : ', error);
       throw new HttpException(
         'Error creating user',
@@ -71,21 +74,23 @@ export class UserController {
     try {
       const user = await this.userService.findUserByEmail(body.email);
       if (!user) {
-       return  new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
+        throw new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
       }
       const checkPassword = await bcrypt.compare(body.password, user.password);
       if (!checkPassword) {
-        return new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
       }
 
       const token = jwt.sign({ id: user.email }, 'passwordKey');
       return {
-        message: 'Login Succesfull',
-        HttpStatus: 200,
+        message: 'Login Successful',
         user: user,
         token,
       };
     } catch (error) {
+      if (error instanceof HttpException) {
+        throw error;
+      }
       console.log('Login error : ', error);
       throw new HttpException(
         'User Login failed',
