@@ -121,7 +121,7 @@ export class DriverController {
     }
   }
 
- @Post('updateDriver')
+@Post('updateDriver')
 @UseGuards(AuthMiddleware)
 async updateDriver(
   @Body() body: {
