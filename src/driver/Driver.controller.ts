@@ -10,14 +10,15 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { DriverService } from './Driver.service';
-import * as bcrypt from 'bcrypt';
-
 import { Driver } from 'src/schemas/Driver.schema';
-import * as jwt from 'jsonwebtoken';
+import { AuthService } from 'src/auth/auth.service';
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 @Controller()
 export class DriverController {
-  constructor(private readonly driverService: DriverService) {}
+  constructor(
+    private readonly driverService: DriverService,
+    private readonly authService: AuthService,
+  ) {}
 
 // test
 @Get('ping')
@@ -44,7 +45,7 @@ export class DriverController {
         throw new HttpException('Email already exists', HttpStatus.CONFLICT);
       }
 
-      const hashedPassword = await bcrypt.hash(body.password, 10);
+      const hashedPassword = await this.authService.hashPassword(body.password);
       const newDriver: Driver = {
         name: body.name,
         email: body.email,
@@ -80,12 +81,12 @@ export class DriverController {
       if (!driver) {
         throw new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
       }
-      const checkPassword = await bcrypt.compare(body.password, driver.password);
+      const checkPassword = await this.authService.comparePassword(body.password, driver.password);
       if (!checkPassword) {
         throw new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
       }
 
-      const token = jwt.sign({ id: driver.email }, 'passwordKey');
+      const token = this.authService.generateToken({ id: driver.email, type: 'driver' });
       return {
         message: 'Login Successful',
         user: driver,

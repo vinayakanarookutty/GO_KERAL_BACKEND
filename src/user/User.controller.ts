@@ -12,17 +12,19 @@ import {
   UploadedFile,
   UseInterceptors,
 } from '@nestjs/common';
-import * as bcrypt from 'bcrypt';
 import { UserService } from './User.service';
 import { User } from 'src/schemas/User.schema';
-import * as jwt from 'jsonwebtoken';
+import { AuthService } from 'src/auth/auth.service';
 import { FileInterceptor } from '@nestjs/platform-express';
 import { diskStorage } from 'multer';
 import { Express } from 'express';
 
 @Controller()
 export class UserController {
-  constructor(private readonly userService: UserService) {}
+  constructor(
+    private readonly userService: UserService,
+    private readonly authService: AuthService,
+  ) {}
 
   @Post('signup')
   async userSignup(
@@ -42,7 +44,7 @@ export class UserController {
         throw new HttpException('Email already exists', HttpStatus.CONFLICT);
       }
 
-      const hashedPassword = await bcrypt.hash(body.password, 10);
+      const hashedPassword = await this.authService.hashPassword(body.password);
       const user: User = {
         name: body.name,
         email: body.email,
@@ -76,12 +78,12 @@ export class UserController {
       if (!user) {
         throw new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
       }
-      const checkPassword = await bcrypt.compare(body.password, user.password);
+      const checkPassword = await this.authService.comparePassword(body.password, user.password);
       if (!checkPassword) {
         throw new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
       }
 
-      const token = jwt.sign({ id: user.email }, 'passwordKey');
+      const token = this.authService.generateToken({ id: user.email, type: 'user' });
       return {
         message: 'Login Successful',
         user: user,
