@@ -5,12 +5,14 @@ import { Vehicle, VehicleSchema } from "../schemas/Vehicle.schema";
 import { VehicleService } from "./Vehicle.service";
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 import { VehicleController } from "./Vehicle.controller";
+import { AuthModule } from 'src/auth/auth.module';
 @Module({
     imports : [
         MongooseModule.forFeature([{
             name : Vehicle.name ,
             schema :VehicleSchema ,
-        }])
+        }]),
+        AuthModule
     ] ,
     providers : [ VehicleService ] ,
     controllers:[VehicleController]

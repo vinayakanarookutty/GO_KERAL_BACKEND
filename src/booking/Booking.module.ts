@@ -5,11 +5,12 @@ import { BookingController } from './Booking.controller';
 import { BookingService } from './Booking.service';
 import { Booking, BookingSchema } from '../schemas/Booking.schema';
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
-
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
-    MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }])
+    MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
+    AuthModule
   ],
   controllers: [BookingController],
   providers: [BookingService],
