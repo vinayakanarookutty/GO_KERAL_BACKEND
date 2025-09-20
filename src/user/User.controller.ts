@@ -75,6 +75,7 @@ export class UserController {
   async userLogin(@Body() body: { email: string; password: string }) {
     try {
       const user = await this.userService.findUserByEmail(body.email);
+  
       if (!user) {
         throw new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
       }
