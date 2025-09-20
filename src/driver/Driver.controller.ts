@@ -18,14 +18,14 @@ export class DriverController {
   constructor(
     private readonly driverService: DriverService,
     private readonly authService: AuthService,
-  ) {}
+  ) { }
 
-// test
-@Get('ping')
+  // test
+  @Get('ping')
   ping() {
     return { message: 'DriverController is working!' };
   }
-  
+
   @Post('driversignup')
   async driverSignup(
     @Body()
