@@ -5,6 +5,7 @@ import { Driver, driverSchema } from 'src/schemas/Driver.schema';
 import { DriverService } from './Driver.service';
 import { DriverController } from './Driver.controller';
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
+import { AuthModule } from 'src/auth/auth.module';
 
 @Module({
   imports: [
@@ -14,6 +15,7 @@ import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
         schema: driverSchema,
       },
     ]),
+    AuthModule,
   ],
   providers: [DriverService],
   controllers: [DriverController],
