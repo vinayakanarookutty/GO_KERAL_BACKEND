@@ -107,7 +107,7 @@ class RouteInfoDto {
 class PriceDto {
   @IsNumber()
   @IsNotEmpty()
-  baseFare: number;
+  minimumFare: number;
 
   @IsNumber()
   @IsNotEmpty()

@@ -27,7 +27,6 @@ import {
   
     @IsObject()
     fareStructure: {
-      baseFare: number;
       minimumFare: number;
       perKilometerRate: number;
       waitingChargePerMinute: number;

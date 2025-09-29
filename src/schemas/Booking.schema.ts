@@ -93,7 +93,7 @@ class RouteInfo {
 @Schema({ _id: false })
 class Price {
   @Prop({ required: true })
-  baseFare: number;
+  minimumFare: number;
 
   @Prop({ required: true })
   bookingFee: number;
