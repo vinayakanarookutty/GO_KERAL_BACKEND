@@ -25,10 +25,10 @@ export class ExotelService {
   private readonly baseUrl: string;
 
   constructor(private configService: ConfigService) {
-    this.accountSid = this.configService.get<string>('EXOTEL_ACCOUNT_SID');
-    this.apiKey = this.configService.get<string>('EXOTEL_API_KEY');
-    this.apiToken = this.configService.get<string>('EXOTEL_API_TOKEN');
-    this.callerId = this.configService.get<string>('EXOTEL_CALLER_ID');
+    this.accountSid = this.configService.get<string>('corestoneinnovations1');
+    this.apiKey = this.configService.get<string>('ec1330f7aa3bfa284c0054ed2154675eef0b7197fc3c7e14');
+    this.apiToken = this.configService.get<string>('75f9280563d173126ffc5b1889139dc6e051c7cce5ea1dcf');
+    this.callerId = this.configService.get<string>('049-542-63010');
     this.baseUrl = `https://api.exotel.com/v1/Accounts/${this.accountSid}`;
   }
 
@@ -46,8 +46,8 @@ export class ExotelService {
           To: driverPhone,
           Url: callFlowUrl,
           Method: 'POST',
-          FallbackUrl: `${this.configService.get('BASE_URL')}/exotel/fallback`,
-          StatusCallback: `${this.configService.get('BASE_URL')}/exotel/status`,
+          FallbackUrl: `${this.configService.get('http://localhost:3000')}/exotel/fallback`,
+          StatusCallback: `${this.configService.get('http://localhost:3000')}/exotel/status`,
           StatusCallbackMethod: 'POST',
           Record: 'false',
           Timeout: '30',
@@ -98,6 +98,6 @@ export class ExotelService {
       fare: callData.fare.toString()
     });
 
-    return `${this.configService.get('BASE_URL')}/exotel/voice-message?${params.toString()}`;
+    return `${this.configService.get('http://localhost:3000')}/exotel/voice-message?${params.toString()}`;
   }
 }

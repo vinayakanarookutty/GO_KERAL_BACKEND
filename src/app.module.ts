@@ -11,9 +11,11 @@ import { UserModule } from './user/User.module';
 import { VehicleModule } from './vehicle/Vehicle.module';
 import { S3Module } from './s3/s3.module';
 import { AuthModule } from './auth/auth.module';
+import { ConfigModule } from '@nestjs/config';
 
 @Module({
   imports: [ 
+    ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot('mongodb+srv://vinayaksukhalal:123321@cluster0.vqk0m.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'),
     // MongooseModule.forRoot('mongodb://127.0.0.1/tourismProject') ,
     AuthModule,
@@ -25,6 +27,7 @@ import { AuthModule } from './auth/auth.module';
     UserModule ,
     VehicleModule ,
     S3Module
+
   ],
   controllers: [],
   providers: [],
