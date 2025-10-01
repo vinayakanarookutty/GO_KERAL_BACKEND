@@ -23,7 +23,7 @@ import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 
 // Import the notification services
 import { IntegratedNotificationService } from '../services/integrated-notification.service';
-import { GupshupService } from '../services/gupshup.service';
+
 import { ExotelService } from '../services/exotel.service';
 //   import { JwtAuthGuard } from '../auth/guards/jwt-auth.guard';
 //   import { Roles } from '../auth/decorators/roles.decorator';
@@ -35,7 +35,6 @@ import { ExotelService } from '../services/exotel.service';
 constructor(
     private readonly bookingService: BookingService,
     private readonly integratedNotificationService: IntegratedNotificationService,
-    private readonly gupshupService: GupshupService,
     private readonly exotelService: ExotelService,
   ) {}
     private readonly logger = new Logger(BookingController.name);
@@ -53,7 +52,7 @@ constructor(
       
       this.logger.log(`Booking created successfully: ${booking.id}`);
 
-      // Send all notifications (SMS, WhatsApp, and Voice Call) to driver
+      // Send all notifications (SMS, WhatsApp, and Voice Call) via Exotel
       const notificationPromise = this.integratedNotificationService.sendAllNotifications(
         createBookingDto,
         booking.id,
@@ -67,7 +66,7 @@ constructor(
       // Don't wait for notifications to complete the booking response
       notificationPromise
         .then((notificationResults) => {
-          this.logger.log(`Notifications sent for booking ${booking.id}:`, {
+          this.logger.log(`Exotel notifications sent for booking ${booking.id}:`, {
             sms: notificationResults.sms.success,
             whatsapp: notificationResults.whatsapp.success,
             call: notificationResults.call.success,

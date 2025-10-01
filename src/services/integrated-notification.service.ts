@@ -1,7 +1,6 @@
 /* eslint-disable prettier/prettier */
 import { Injectable, Logger } from '@nestjs/common';
-import { GupshupService, BookingNotificationData } from './gupshup.service';
-import { ExotelService, ExotelCallData } from './exotel.service';
+import { ExotelService, BookingNotificationData, ExotelCallData } from './exotel.service';
 import { CreateBookingDto } from '../dto/booking.dto';
 
 export interface NotificationResults {
@@ -17,7 +16,6 @@ export class IntegratedNotificationService {
   private readonly logger = new Logger(IntegratedNotificationService.name);
 
   constructor(
-    private readonly gupshupService: GupshupService,
     private readonly exotelService: ExotelService,
   ) {}
 
@@ -46,7 +44,7 @@ export class IntegratedNotificationService {
       return results;
     }
 
-    this.logger.log(`Sending notifications for booking ${bookingId} to driver ${driverPhone}`);
+    this.logger.log(`Sending Exotel notifications for booking ${bookingId} to driver ${driverPhone}`);
 
     // Prepare notification data
     const bookingData: BookingNotificationData = {
@@ -94,7 +92,7 @@ export class IntegratedNotificationService {
     // Determine overall success
     results.overall = results.sms.success || results.whatsapp.success || results.call.success;
 
-    this.logger.log(`Notification summary for booking ${bookingId}:`, {
+    this.logger.log(`Exotel notification summary for booking ${bookingId}:`, {
       sms: results.sms.success,
       whatsapp: results.whatsapp.success,
       call: results.call.success,
@@ -111,7 +109,7 @@ export class IntegratedNotificationService {
     results: NotificationResults
   ): Promise<void> {
     try {
-      results.sms = await this.gupshupService.sendSMS(driverPhone, bookingData);
+      results.sms = await this.exotelService.sendSMS(driverPhone, bookingData);
       if (!results.sms.success) {
         results.errors.push(`SMS failed: ${results.sms.error}`);
       }
@@ -127,7 +125,7 @@ export class IntegratedNotificationService {
     results: NotificationResults
   ): Promise<void> {
     try {
-      results.whatsapp = await this.gupshupService.sendWhatsAppMessage(driverPhone, bookingData);
+      results.whatsapp = await this.exotelService.sendWhatsAppMessage(driverPhone, bookingData);
       if (!results.whatsapp.success) {
         results.errors.push(`WhatsApp failed: ${results.whatsapp.error}`);
       }

@@ -7,18 +7,21 @@ import { Booking, BookingSchema } from '../schemas/Booking.schema';
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 import { AuthModule } from 'src/auth/auth.module';
 import { ExotelController } from 'src/services/exotel.controller';
-import { GupshupService } from 'src/services/gupshup.service';
+import { ConfigModule } from '@nestjs/config';
 import { ExotelService } from 'src/services/exotel.service';
 import { IntegratedNotificationService } from 'src/services/integrated-notification.service';
 
 @Module({
   imports: [
+     ConfigModule.forRoot({
+      isGlobal: true,      // ✅ Makes ConfigService available everywhere
+      envFilePath: '.env',
+    }),
     MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
     AuthModule
   ],
   controllers: [BookingController,ExotelController],
   providers: [BookingService,
-    GupshupService,
     ExotelService,
     IntegratedNotificationService
   ],
