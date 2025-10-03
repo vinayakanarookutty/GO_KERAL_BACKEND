@@ -4,11 +4,13 @@ import { InjectModel } from '@nestjs/mongoose';
 import { Model } from 'mongoose';
 import { Booking } from '../schemas/Booking.schema';
 import { CreateBookingDto, UpdateBookingStatusDto } from '../dto/booking.dto';
+import { WhatsAppService } from '../whatsapp/whatsapp.service';
 
 @Injectable()
 export class BookingService {
   constructor(
     @InjectModel(Booking.name) private bookingModel: Model<Booking>,
+    private whatsappService: WhatsAppService,
   ) {}
 
   async create(createBookingDto: CreateBookingDto, userId: string): Promise<Booking> {
@@ -20,7 +22,12 @@ export class BookingService {
       };
       
       const createdBooking = new this.bookingModel(bookingData);
-      return await createdBooking.save();
+      const savedBooking = await createdBooking.save();
+      
+      // Send WhatsApp messages after booking is saved
+      await this.sendBookingConfirmationMessages(savedBooking);
+      
+      return savedBooking;
     } catch (error) {
       if (error.name === 'ValidationError') {
         throw new BadRequestException(`Validation error: ${error.message}`);
@@ -187,5 +194,64 @@ export class BookingService {
       averageFare: 0,
       totalDistance: 0
     };
+  }
+
+  private async sendBookingConfirmationMessages(booking: any) {
+    try {
+      const driverMessage = this.generateDriverMessage(booking);
+      const userMessage = this.generateUserMessage(booking);
+
+      // Send to driver
+      if (booking.driver?.details?.phone) {
+        await this.whatsappService.sendMessage(
+          booking.driver.details.phone,
+          driverMessage
+        );
+      }
+
+      // Send to user
+      if (booking.userInfo?.phone) {
+        await this.whatsappService.sendMessage(
+          booking.userInfo.phone,
+          userMessage
+        );
+      }
+    } catch (error) {
+      console.error('Failed to send WhatsApp messages:', error);
+    }
+  }
+
+  private generateDriverMessage(booking: any): string {
+    return `🚗 *New Booking Confirmed!*
+
+📋 *Booking ID:* ${booking.bookingId}
+👤 *Passenger:* ${booking.userInfo?.name || 'N/A'}
+📞 *Passenger Phone:* ${booking.userInfo?.phone || 'N/A'}
+
+📍 *Pickup:* ${booking.origin?.address || 'N/A'}
+🎯 *Drop-off:* ${booking.destination?.address || 'N/A'}
+⏰ *Scheduled Time:* ${booking.userInfo?.date} at ${booking.userInfo?.time}
+💰 *Fare:* ₹${booking.price?.total || 0}
+
+🚙 *Vehicle:* ${booking.vehicle?.details?.make || 'Auto-assigned'}
+
+Please be ready at the pickup location on time. Safe driving! 🛣️`;
+  }
+
+  private generateUserMessage(booking: any): string {
+    return `✅ *Booking Confirmed!*
+
+📋 *Booking ID:* ${booking.bookingId}
+🚗 *Driver:* ${booking.driver?.details?.name || 'Auto-assigned'}
+📞 *Driver Phone:* ${booking.driver?.details?.phone || 'Will be assigned'}
+
+📍 *Pickup:* ${booking.origin?.address || 'N/A'}
+🎯 *Destination:* ${booking.destination?.address || 'N/A'}
+⏰ *Scheduled Time:* ${booking.userInfo?.date} at ${booking.userInfo?.time}
+💰 *Total Fare:* ₹${booking.price?.total || 0}
+
+🚙 *Vehicle:* ${booking.vehicle?.details?.make || 'Auto-assigned'}
+
+Your driver will contact you shortly. Have a safe trip! 🛣️`;
   }
 }

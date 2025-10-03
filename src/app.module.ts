@@ -1,6 +1,7 @@
 /* eslint-disable prettier/prettier */
 import { Module, OnModuleInit } from '@nestjs/common';
 import { MongooseModule } from '@nestjs/mongoose';
+import { ConfigModule } from '@nestjs/config';
 import * as mongoose from 'mongoose';
 import { AdminModule } from './admin/Admin.module';
 import { BookingModule } from './booking/Booking.module';
@@ -10,9 +11,12 @@ import { QuotationModule } from './quotation/Quotation.module';
 import { UserModule } from './user/User.module';
 import { VehicleModule } from './vehicle/Vehicle.module';
 import { S3Module } from './s3/s3.module';
+import { WhatsAppModule } from './whatsapp/whatsapp.module';
+import { ChatbotModule } from './chatbot/chatbot.module';
 
 @Module({
-  imports: [ 
+  imports: [
+    ConfigModule.forRoot({ isGlobal: true }),
     MongooseModule.forRoot('mongodb+srv://vinayaksukhalal:123321@cluster0.vqk0m.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0'),
     // MongooseModule.forRoot('mongodb://127.0.0.1/tourismProject') ,
     AdminModule ,
@@ -22,7 +26,9 @@ import { S3Module } from './s3/s3.module';
     QuotationModule ,
     UserModule ,
     VehicleModule ,
-    S3Module
+    S3Module,
+    WhatsAppModule,
+    ChatbotModule
   ],
   controllers: [],
   providers: [],
