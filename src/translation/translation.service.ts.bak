@@ -1,0 +1,61 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { Translate } from '@google-cloud/translate/build/src/v2';
+
+@Injectable()
+export class TranslationService {
+  private readonly logger = new Logger(TranslationService.name);
+  private translate: Translate;
+
+  constructor() {
+    this.translate = new Translate();
+  }
+
+  async translateText(text: string, targetLanguage: string, sourceLanguage?: string): Promise<string> {
+    try {
+      const options = {
+        to: targetLanguage,
+        from: sourceLanguage || 'auto',
+      };
+
+      const [translation] = await this.translate.translate(text, options);
+      return translation;
+    } catch (error) {
+      this.logger.error('Translation error:', error);
+      return text;
+    }
+  }
+
+  async detectLanguage(text: string): Promise<string> {
+    try {
+      const [detection] = await this.translate.detect(text);
+      return Array.isArray(detection) ? detection[0].language : detection.language;
+    } catch (error) {
+      this.logger.error('Language detection error:', error);
+      return 'en';
+    }
+  }
+
+  async translateMultiple(texts: string[], targetLanguage: string): Promise<string[]> {
+    try {
+      const [translations] = await this.translate.translate(texts, { to: targetLanguage });
+      return Array.isArray(translations) ? translations : [translations];
+    } catch (error) {
+      this.logger.error('Multiple translation error:', error);
+      return texts;
+    }
+  }
+
+  getSupportedLanguages() {
+    return [
+      { code: 'en', name: 'English', nativeName: 'English' },
+      { code: 'hi', name: 'Hindi', nativeName: 'हिन्दी' },
+      { code: 'ml', name: 'Malayalam', nativeName: 'മലയാളം' },
+      { code: 'ta', name: 'Tamil', nativeName: 'தமிழ்' },
+      { code: 'te', name: 'Telugu', nativeName: 'తెలుగు' },
+      { code: 'kn', name: 'Kannada', nativeName: 'ಕನ್ನಡ' },
+      { code: 'bn', name: 'Bengali', nativeName: 'বাংলা' },
+      { code: 'gu', name: 'Gujarati', nativeName: 'ગુજરાતી' },
+      { code: 'mr', name: 'Marathi', nativeName: 'मराठी' },
+    ];
+  }
+}
