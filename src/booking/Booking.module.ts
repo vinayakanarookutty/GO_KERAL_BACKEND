@@ -13,8 +13,6 @@ import { WhatsAppModule } from '../whatsapp/whatsapp.module';
     MongooseModule.forFeature([{ name: Booking.name, schema: BookingSchema }]),
     WhatsAppModule
   ],
-  controllers: [BookingController],
-  providers: [BookingService],
   exports: [BookingService],
 })
 export class BookingModule {

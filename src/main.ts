@@ -4,6 +4,7 @@ import { AppModule } from './app.module';
 import * as bodyParser from 'body-parser';
 import { NestExpressApplication } from '@nestjs/platform-express';
 import { join } from 'path';
+import { ValidationPipe } from '@nestjs/common';
 
 async function bootstrap() {
   const app = await NestFactory.create<NestExpressApplication>(AppModule);
@@ -54,8 +55,14 @@ app.enableCors({
   //error handling
   // app.useGlobalFilters(new AllExceptionsFilter());
 
+  app.useGlobalPipes(new ValidationPipe({
+    whitelist: true,
+    forbidNonWhitelisted: true,
+    transform: true,
+  }));
+
   await app.listen(process.env.PORT ?? 3000).then(() => {
-    console.log(process.env.PORT ?? 3000)
+   
   });
 }
 bootstrap();

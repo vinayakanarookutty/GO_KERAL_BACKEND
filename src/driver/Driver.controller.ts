@@ -10,21 +10,22 @@ import {
   HttpStatus,
 } from '@nestjs/common';
 import { DriverService } from './Driver.service';
-import * as bcrypt from 'bcrypt';
-
 import { Driver } from 'src/schemas/Driver.schema';
-import * as jwt from 'jsonwebtoken';
+import { AuthService } from 'src/auth/auth.service';
 import { AuthMiddleware } from 'src/middlleware/auth.middlllleware';
 @Controller()
 export class DriverController {
-  constructor(private readonly driverService: DriverService) {}
+  constructor(
+    private readonly driverService: DriverService,
+    private readonly authService: AuthService,
+  ) { }
 
-// test
-@Get('ping')
+  // test
+  @Get('ping')
   ping() {
     return { message: 'DriverController is working!' };
   }
-  
+
   @Post('driversignup')
   async driverSignup(
     @Body()
@@ -37,9 +38,14 @@ export class DriverController {
       agreement: boolean;
     },
   ) {
-    
     try {
-      const hashedPassword = await bcrypt.hash(body.password, 10);
+      const isDriverExists = await this.driverService.findDriverByEmail(body.email);
+
+      if (isDriverExists) {
+        throw new HttpException('Email already exists', HttpStatus.CONFLICT);
+      }
+
+      const hashedPassword = await this.authService.hashPassword(body.password);
       const newDriver: Driver = {
         name: body.name,
         email: body.email,
@@ -51,35 +57,50 @@ export class DriverController {
         personalInfo: { name: 'sadsd' },
       };
       await this.driverService.newDriver(newDriver);
-      return { status: HttpStatus.OK, message: 'Driver created successfully' };
+      return {
+        status: 201,
+        message: 'Driver Created Successfully',
+        driver: newDriver,
+      };
     } catch (error) {
-      console.error('Error creating driver', error);
-
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      console.log('Error creating driver : ', error);
+      throw new HttpException(
+        'Error creating driver',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
   @Post('driverlogin')
   async driverLogin(@Body() body: { email: string; password: string }) {
     try {
-      const userData = await this.driverService.findDriverByEmail(body.email);
-      if (!userData) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
+      const driver = await this.driverService.findDriverByEmail(body.email);
+      if (!driver) {
+        throw new HttpException('USER NOT FOUND', HttpStatus.NOT_FOUND);
       }
-
-      const checkPassword = await bcrypt.compare(
-        body.password,
-        (await userData).password,
-      );
+      const checkPassword = await this.authService.comparePassword(body.password, driver.password);
       if (!checkPassword) {
-        throw new HttpException('Incorrect Password', HttpStatus.UNAUTHORIZED);
+        throw new HttpException('INCORRECT PASSWORD', HttpStatus.UNAUTHORIZED);
       }
-      const token = jwt.sign({ id: (await userData).email }, 'passwordKey');
 
-      return { message: 'User Found', token };
+      const token = this.authService.generateToken({ id: driver.email, type: 'driver' });
+      return {
+        message: 'Login Successful',
+        user: driver,
+        token,
+      };
     } catch (error) {
-      console.log('Login Error :', error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      if (error instanceof HttpException) {
+        throw error;
+      }
+      console.log('Login error : ', error);
+      throw new HttpException(
+        'User Login failed',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -87,11 +108,13 @@ export class DriverController {
   async getAll() {
     try {
       const drivers = await this.driverService.findAll();
-      console.log(drivers)
       return { drivers };
     } catch (error) {
-      console.log('Login error', error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      console.log('Error retreiving drivers : ', error);
+      throw new HttpException(
+        'Error retrieving driver data ',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
 
@@ -99,63 +122,49 @@ export class DriverController {
   @UseGuards(AuthMiddleware)
   async getUserDetails(@Req() req: Request) {
     try {
-      const userId = await req['user'].id; // ✅ Fixed syntax
-   
-      const user = await this.driverService.findDriverByEmail(userId);
+      const userId = req['user'].id;
+      const userData = await this.driverService.findDriverByEmail(userId);
+      delete userData.password;
+      return { userData };
+    } catch {
+      throw new HttpException(
+        'Error getting user data',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
+    }
+  }
 
-      if (!user) {
-        throw new HttpException('User not found', HttpStatus.NOT_FOUND);
-      }
+  @Post('updateDriver')
+  @UseGuards(AuthMiddleware)
+  async updateDriver(
+    @Body() body: {
+      name?: string;
+      email?: string;
+      phone?: number;
+      drivinglicenseNo?: string;
+      imageUrl?: string;
+    },
+    @Req() req: Request,
+  ) {
+    try {
+      const userId = req['user'].id;
+      const updatedDriver = await this.driverService.updateDriverDetails(
+        userId,
+        body,
+      );
 
       return {
-        imageUrl: user.imageUrl,
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        drivinglicenseNo: user.drivinglicenseNo,
-        personalInfo: user.personalInfo,
+        message: 'Driver updated successfully',
+        data: updatedDriver,
       };
     } catch (error) {
-      console.error('Error fetching user details:', error);
-      throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
+      console.error('Error updating driver:', error);
+      throw new HttpException(
+        'Error updating driver profile',
+        HttpStatus.INTERNAL_SERVER_ERROR,
+      );
     }
   }
-
- @Post('updateDriver')
-@UseGuards(AuthMiddleware)
-async updateDriver(
-  @Body() body: {
-    name?: string;
-    email?: string;
-    phone?: number;
-    drivinglicenseNo?: string;
-    imageUrl?: string;
-  },
-  @Req() req: Request,
-) {
-  try {
-    const userId = req['user'].id;
-  
-   
-
-    const updatedDriver = await this.driverService.updateDriverDetails(
-      userId,
-      body, // pass full body with updated fields
-    );
-
-    if (!updatedDriver) {
-      throw new HttpException('Driver not found', HttpStatus.NOT_FOUND);
-    }
-
-    return {
-      message: 'Driver details updated successfully',
-      driver: updatedDriver,
-    };
-  } catch (error) {
-    console.error('Error updating driver:', error);
-    throw new HttpException(error.message, HttpStatus.INTERNAL_SERVER_ERROR);
-  }
-}
 
 
   @Post('updateDriverPersonalInfo')
@@ -165,35 +174,20 @@ async updateDriver(
     @Req() req: Request,
   ) {
     try {
-      const userId = req['user']?.id; // Extract user ID from request
-      if (!userId) {
-        throw new HttpException('User ID not found', HttpStatus.UNAUTHORIZED);
-      }
-
-      if (!body) {
-        throw new HttpException(
-          'Missing personal information',
-          HttpStatus.BAD_REQUEST,
-        );
-      }
-   
+      const userId = req['user'].id;
       const updatedDriver = await this.driverService.updateDriverPersonalInfo(
         userId,
         body,
       );
 
-      if (!updatedDriver) {
-        throw new HttpException('Driver not found', HttpStatus.NOT_FOUND);
-      }
-
       return {
-        message: 'Driver personal information updated successfully',
-        driver: updatedDriver,
+        message: 'Driver updated successfully',
+        data: updatedDriver,
       };
     } catch (error) {
       console.error('Error updating driver:', error);
       throw new HttpException(
-        error.message || 'Internal Server Error',
+        'Error updating driver profile',
         HttpStatus.INTERNAL_SERVER_ERROR,
       );
     }
