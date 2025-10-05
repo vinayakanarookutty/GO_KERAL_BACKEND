@@ -1,0 +1,47 @@
+import { Injectable, Logger } from '@nestjs/common';
+import { TextToSpeechClient } from '@google-cloud/text-to-speech';
+
+@Injectable()
+export class TTSService {
+  private readonly logger = new Logger(TTSService.name);
+  private ttsClient: TextToSpeechClient;
+
+  constructor() {
+    this.ttsClient = new TextToSpeechClient();
+  }
+
+  async textToSpeech(text: string, languageCode: string = 'en', gender: string = 'FEMALE'): Promise<Buffer> {
+    try {
+      const request = {
+        input: { text },
+        voice: {
+          languageCode: this.mapTTSLanguageCode(languageCode),
+          ssmlGender: gender.toUpperCase() as 'MALE' | 'FEMALE' | 'NEUTRAL',
+        },
+        audioConfig: {
+          audioEncoding: 'MP3' as const,
+          speakingRate: 0.9,
+          pitch: 0.0,
+        },
+      };
+
+      const [response] = await this.ttsClient.synthesizeSpeech(request);
+      return Buffer.from(response.audioContent as string, 'binary');
+    } catch (error) {
+      this.logger.error('Text to speech error:', error);
+      throw new Error('Failed to generate speech');
+    }
+  }
+
+  private mapTTSLanguageCode(lang: string): string {
+    const languageMap = {
+      'en': 'en-US', 'hi': 'hi-IN', 'ml': 'ml-IN', 'ta': 'ta-IN',
+      'te': 'te-IN', 'kn': 'kn-IN', 'bn': 'bn-IN', 'gu': 'gu-IN', 'mr': 'mr-IN'
+    };
+    return languageMap[lang] || 'en-US';
+  }
+
+  async generateResponseAudio(text: string, language: string): Promise<Buffer> {
+    return await this.textToSpeech(text, language);
+  }
+}
